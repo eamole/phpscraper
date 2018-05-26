@@ -9,8 +9,7 @@
 namespace Core;
 
 class Model {
-
-    public static $className=__CLASS__;
+    use _Base;
 
     public $tableName;
 

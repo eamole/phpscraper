@@ -18,7 +18,7 @@ class Base {
 trait _List {
     public static $members=[];
 
-    public function add($member,$name=null) {
+    public static function add($member,$name=null) {
         $key = null;
         if(is_null($name)) {
             if(isset($member->name)) {
@@ -27,6 +27,7 @@ trait _List {
         } else {
             $key = $name;
         }
+        $key=strtolower($key);
         if(isset(self::$members[$key])) {
             self::warning("resetting the member value with key [$key] ");
         }
@@ -34,11 +35,23 @@ trait _List {
 
     }
 
+    public static function get($name) {
+        $key=strtolower($name);
+        if(!isset(self::$members[$key])) {
+            self::error("cannot retrieve Member using key [$key]");
+        }
+        return self::$members[$key];
+
+
+        }
+
 }
 
 
 trait _Base {
 
+// this causes problems with redefinitions!!
+//    public static $className=__CLASS__;
 
     public static function error($msg,$args=[]) {
 //        new WP_Error('code',$msg,$args);

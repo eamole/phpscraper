@@ -8,7 +8,9 @@
 
 namespace Core;
 
+
 class Entity extends Base{
+    use _Base;
 
     public static $entities=[]; // each Entity class
 

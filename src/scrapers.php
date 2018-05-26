@@ -5,9 +5,23 @@
  * Date: 26/05/2018
  * Time: 02:23
  */
-
+//use App;
 function scraper_cruise_list($html) {
+    App\Scraper::init();
+//    echo php_ini_loaded_file();
+//    print_r(get_loaded_extensions());
+//    phpinfo();
+    echo var_dump($_SERVER['DOCUMENT_ROOT']); //['DOCUMENT_ROOT'];
+    echo Core\App::$root;
 
+    $scraper = new Scraper\CruiseCritic();
+    $scraper->getUpcoming();
+    return;
+
+
+
+
+    
     // $dom = new DOMDocument($html);
 //    $dom = new phpQuery();
 //    phpQuery::$debug=true;
