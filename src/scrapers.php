@@ -11,8 +11,10 @@
  * @return string|void
  */
 function scraper_cruise_list($html) {
-    App\Scraper::init();
-    Core\Db::connectToWP("src/");
+
+	App\AppScraper::init();
+
+    // Core\Db::connectToWP("src/");
 //      echo php_ini_loaded_file();
 //    print_r(get_loaded_extensions());
 //    phpinfo();

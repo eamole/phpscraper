@@ -7,10 +7,29 @@
  */
 
 namespace Model;
+
 use \Core;
+use Model;
 
-class Ships extends Core\Base {
+class Ships extends Core\Model
+{
 
-    public static $className=__CLASS__;
+	public static $className = __CLASS__;
+
+	/**
+	 * Ships constructor.
+	 * @param $tableName
+	 * @param $entityClass
+	 * @param array $fields
+	 * @param array $args
+	 */
+	public function __construct()
+	{
+		// fields are the basic simple fields
+		parent::__construct('ships', 'ship', 'name,details,url');
+		// we now need to add foreign keys etc
+		$this->fk(Model\Cruiselines::class);
+
+	}
 
 }

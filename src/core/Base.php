@@ -48,28 +48,35 @@ trait _List {
 }
 
 
-trait _Base {
+trait _Base{
+	
+	public static function getClassName() {
+		return static::class;
+	}
 
 // this causes problems with redefinitions!!
 //    public static $className=__CLASS__;
 
-    public static function error($msg,$args=[]) {
+    public static function error($msg,...$args) {
 //        new WP_Error('code',$msg,$args);
         self::out("Error" , "red" , $msg , $args);
     }
-    public static function warning($msg,$args=[]) {
+    public static function warning($msg,...$args) {
         self::out("Warning" , "orange" , $msg , $args);
     }
-    public static function debug($msg,$args=[]) {
+    public static function debug($msg,...$args) {
         self::out("Debug" , "green" , $msg , $args);
+    }
+    public static function out($mode,$color,$msg,$args=[]) {
+        foreach ($args as $ord=>$arg) {
+            $msg = str_replace("%$ord",$arg,$msg);
+        }
+        echo("\n<p style='color:$color;'>$mode : ".static::getClassName()." | $msg </p>");
     }
     public static function dump($var) {
         echo("\n<pre>");
         var_dump($var);
         echo "</pre>";
-    }
-    public static function out($mode,$color,$msg,$args) {
-        echo("\n<p style='color:$color;'>$mode : ".self::$className." | $msg </p>");
     }
 
 }
