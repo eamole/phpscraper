@@ -43,8 +43,11 @@ App\Db::init();
  * circular!! Therefore change them to deferred methods
  *
  */
-\Entity\CruiseLine::init();
+/*\Entity\CruiseLine::init();
 
 $cruiseline = new \Entity\CruiseLine("test4");
 $cruiseline->logo = "none";
-$cruiseline->saveOrAddKey("name");
+$cruiseline->saveOrAddKey("name");*/
+
+$ship=new Ship();
+$ship->

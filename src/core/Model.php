@@ -313,7 +313,7 @@ class Model
 //			if($this->isField($field) && ($field !== $this->idField))
 
 			// bypass dirty
-			$entity->prop = $value;
+			$entity->_set_($prop, $value);
 
 		}
 

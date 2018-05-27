@@ -60,7 +60,7 @@ class Entity extends Base
 //    public $_fields;    // a reference - not required I think dbg shows statics
 
 
-	public static $data;    // holds array of entity - maybe not auto!! - really needs the id
+	public static $data;    // this is where the object data is stored in keyed array
 
 	public $dirty = false; // only save if a value changed/set
 
@@ -188,14 +188,22 @@ class Entity extends Base
 	 * from the Model
 	 * doesn't work!! gotta store values in an array not on the object
 	 */
-//	public function _set_($name, $value)
+	public function _set_($name, $value)
+	{
+		if (isset(self::$props[$name])) {
+			$this->data[$name] = $value;
+		} else {
+			self::error("SET Reference to an undefined property [$name] in Class : " . self::$className);
+		}
+		return $this;
+	}
 
 	public function __set($name, $value)
 	{
 		if (isset(self::$props[$name])) {
 			if ($this->$name !== $value) {
 				$this->dirty = true;		// to allow setting dirty to false!!
-				$this->$name = $value;
+				$this->data[$name] = $value;
 			}
 		} else {
 			self::error("SET Reference to an undefined property [$name] in Class : " . self::$className);
@@ -206,7 +214,7 @@ class Entity extends Base
 	public function __get($name)
 	{
 		if (isset(self::$props[$name])) {
-			return $this->$name;
+			return $this->data[$name];
 		} else {
 			self::error("GET Reference to an undefined property [$name] in Class : " . self::$className);
 		}

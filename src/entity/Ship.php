@@ -13,12 +13,12 @@ use Entity;
 
 class Ship extends Core\Entity
 {
-	public $shipId;			// ship_id
-	public $name;
-	public $cruiseLine;		// this is actually an object!! need to link to entity
-	public $cruiseLineId;	// cruiseline_id ; this should come from Model
-	public $logo;				// url
-	public $details;			//
+//	public $shipId;			// ship_id
+//	public $name;
+//	public $cruiseLine;		// this is actually an object!! need to link to entity
+//	public $cruiseLineId;	// cruiseline_id ; this should come from Model
+//	public $logo;				// url
+//	public $details;			//
 
 	public static function init()
 	{
