@@ -12,6 +12,10 @@ namespace Core;
 class Entity extends Base{
     use _Base;
 
+    public static $entity;
+    public static $table;
+    public static $id;
+
     public static $entities=[]; // each Entity class
 
     public static $_init=false;
@@ -19,16 +23,26 @@ class Entity extends Base{
     public static $fields=[];
     public static $modelClass;
     public static $model;  // each Entity has a static model
-    public $_fields;    // a reference
+//    public $_fields;    // a reference - not required I think dbg shows statics
 
-    public static function init($modelClass,$fields=[]) {
+
+    public static $data;    // holds array of entity - maybe not auto!! - really needs the id
+
+    public $dirty=false; // only save if a value changed/set
+
+    public static function init($modelClass,$fields=[],$args=[]) {
 
         if(!self::$_init) {
-            self::$modelClass=$modelClass;
-
+            self::$modelClass=$modelClass;  // to create objects from queries
+            if($args) {
+                self::$table = $args['table'];
+                self::$entity = $args['entity'];
+            }
+            // strip off namespaces
 //            self::$model = new $modelClass();
             // every entity will require
-            self::addField("id" ,
+            self::$id = self::$entity . "_id" ;
+            self::addField(self::$table . "_id" ,
                 "integer" ,
                 null ,
                 [
@@ -43,7 +57,13 @@ class Entity extends Base{
         }
 
     }
-
+    public function id($id=null) {
+        $name = self::$id;
+        if($id) {
+            $this->$name = $id;
+        }
+        return $this->$name ;
+    }
     public static function addField($name,$type="string",$len=255,$args=null) {
         if(isset(self::$fields[$name])){
             self::error("field name [$name] being redefined!");
@@ -62,7 +82,10 @@ class Entity extends Base{
     }
     public function __set($name, $value) {
         if( isset(self::$fields[$name])) {
-            $this->$name = $value;
+            if($this->$name !== $value) {
+                $this->$name = $value;
+                $this->dirty = true;
+            }
         } else {
             self::error("SET Reference to an undefined property [$name] in Class : ".self::$className);
         }
@@ -86,4 +109,28 @@ class Entity extends Base{
         $val = call_user_func_array($method,$args);
         return $val;
     }
+
+    /*
+     * work with the DB
+     */
+
+
+
+    /*
+     * using the id
+     */
+    public function findOrAdd() {
+        if(!isset($this->id)) {
+
+        }
+    }
+    /*
+     * this should find ALL values in a QBE manner
+     */
+    public function findBy($field) {
+
+    }
+
+
+
 }

@@ -6,7 +6,7 @@
  * Time: 01:58
  */
 
-namespace app;
+namespace Model;
 use \Core;
 
 class Ships extends Core\Base {

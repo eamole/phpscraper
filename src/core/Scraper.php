@@ -19,7 +19,7 @@ class Scraper extends Base {
     public $urls=[];
     // public $routes=[];
     public $html;
-    public $data=[];
+    public $data=[];    // hold all captured values/objects
 
     public function __construct($name,$domain) {
         $this->name=$name;

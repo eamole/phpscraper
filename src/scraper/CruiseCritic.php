@@ -8,7 +8,7 @@
 
 namespace Scraper;
 use Core;
-use App;
+use Entity;
 
 class CruiseCritic extends Core\Scraper {
     use Core\_Base;
@@ -28,6 +28,11 @@ class CruiseCritic extends Core\Scraper {
         $this->html = $this->getUrl("upcoming");
 
         $this->map("article","upcoming_cruise");
+
+        // padd the captured data across
+//        Entity\CruiseScrape::$data=;
+        Entity\CruiseScrape::saveAll($this->data);
+
         if(function_exists("yaml_emit")) {
             $str = yaml_emit( $this->data );
             self::dump($str);
@@ -62,7 +67,7 @@ class CruiseCritic extends Core\Scraper {
 
     public function upcoming_cruise($node) {
 
-        $cruise = new App\Cruise();
+        $cruise = new Entity\CruiseScrape();
         $cruise->fromHtml($node);
         return $cruise;
     }
