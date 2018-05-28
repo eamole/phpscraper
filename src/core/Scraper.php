@@ -12,7 +12,7 @@ use Core;
  * model each scraped website
  */
 class Scraper extends Base {
-    use _Base, _List;
+    use  _List;
 
     public $name;
     public $domain;

@@ -21,7 +21,6 @@ use Model;
 class Ships extends Core\Model
 {
 
-	public static $className = __CLASS__;
 
 	/**
 	 * Ships constructor.

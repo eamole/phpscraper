@@ -12,7 +12,7 @@ use Core;
 
 class AppScraper extends Core\App
 {
-	use Core\_Base;
+//	use Core\_Base;
 
 	public static function init()
 	{

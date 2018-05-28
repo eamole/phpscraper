@@ -17,13 +17,11 @@ use Core;
  *
  */
 
-class Model
+class Model extends Base
 {
-	use _Base;
 
 	public static $model;   // singleton
 	// properties, boxes , nuts
-	public static $plurals = ["ies" => "y", "es" => "", "s" => "", "a" => "um"];
 	public $tableName;       // should be plural of entity
 	public $entityClass;     // link to entityClass
 // must defer till Entity has been constructed - circular
@@ -129,19 +127,7 @@ class Model
 	/*
 	 * use lowercase singular + _id
 	 */
-	public function getSingular($word)
-	{
-		$ret = null;
-		foreach (self::$plurals as $plural => $singular) {
-			// compare
-			if (substr($word, 0 - len($plural)) == $plural) {
-				// strip off ending
-				$ret = substr($word, 0, len($plural)) . $singular;
-				break;
-			}
-		}
-		return $ret;
-	}
+
 	/*
 	 * assume a class exists - really should have an ORM class extending the model
 	 */

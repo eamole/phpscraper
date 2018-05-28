@@ -8,13 +8,14 @@
 
 namespace Core;
 
-class Base {
-    use _Base;
-    public static $className=__CLASS__;
+//class Base {
+//    use _Base;
+//    public static $className=__CLASS__;		// this will always be Core\Base - its this class!!
+//	// delete this at some stage
+//
+//}
 
-}
-
-// allow classes to hold their own member as static
+// allow classes to hold their own members as static
 trait _List {
     public static $members=[];
 
@@ -48,8 +49,9 @@ trait _List {
 }
 
 
-trait _Base{
-	
+//trait _Base{
+class Base{
+
 	public static function getClassName() {
 		return static::class;
 	}
@@ -71,7 +73,7 @@ trait _Base{
         foreach ($args as $ord=>$arg) {
             $msg = str_replace("%$ord",$arg,$msg);
         }
-        echo("\n<p style='color:$color;'>$mode : ".static::getClassName()." | $msg </p>");
+        echo("\n<p style='color:$color;'>$mode : ".static::class." | $msg </p>");
     }
     public static function dump($var) {
         echo("\n<pre>");

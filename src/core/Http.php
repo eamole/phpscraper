@@ -10,7 +10,6 @@ namespace Core;
 use Core;
 
 class Http extends Base{
-    use _Base;
 
     public static $pathToCache = "/cache/http/";
 

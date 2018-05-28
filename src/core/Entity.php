@@ -9,6 +9,7 @@
 namespace Core;
 
 use Core;
+use Core\EntityManager as EM;
 
 /*
  * this uses a very mixed model, talking direct to DV
@@ -35,190 +36,78 @@ use Core;
 
 class Entity extends Base
 {
-	// lets see if putting in top level makes a diff
-//	public static $_init = false;
 
-	use _Base;
-	public static $entityName;
-	// ideally these would be Class objects!! might use a trait - bind class static to an object
-	public static $entityClass;
-
-	public static $modelClass;
-
-	public static $idName;  // ???
-	public static $entities = []; // each Entity class
-	// orm mapping
-
-	public static $props = [];
-	public static $model;  // each Entity has a static model object
-
-	public static $unique = [];   // fields which must be unique - can be used to verify/match if an entity already exists
-	/*
-	 * have a small problem :
-	 */
-
-
-//    public $_fields;    // a reference - not required I think dbg shows statics
-
-
-	public $data;    // this is where the object data is stored in keyed array
-
+	public $em;		// entity manager
+	public $data;  // this is where the object data is stored in keyed array
 	public $dirty = false; // only save if a value changed/set
+
+	public static function EM() {
+
+	}
+	/*
+	 * Can I now skip creating the EM in here
+	 * I want to avoid params so I can auto create objects
+	 * alt, I can create an EM in here just using static::class
+	 * $entityClass, $modelClass,  $props = [], $args = []
+	 * I've made them all optional and made guesses
+	 */
+	public function __construct($entityClass=null, $modelClass=null,  $props = [], $args = []) {
+//		$this->em = EM::registerEntityClass($entityClass, $modelClass,  $props, $args);
+		$entityClass = $entityClass ?? static::class;	// hopefully this works
+		$this->em = EM::getEntityManager($entityClass,$modelClass);
+		// register this object/entity with its manager
+		$this->em->add($this);
+	}
 
 	/*
 	 * props should auto come from Reflection!!
 	 * only add a prop is a mapping is required
 	 */
-	public static function init($modelClass, $entityClass, $props = [], $args = [])
-	{
-		// I'm thinking there might be only one _init flag for all Entity classes
-		if (!static::$_init) {
-			self::$modelClass = $modelClass;  // to create objects from queries
-			self::$model = new $modelClass;
-			self::$entityClass = $entityClass;
-			self::$entityName = self::entityName();
-
-			/*
-			 * I  should interrogate the model for the default fields
-			 * and mappings
-			 */
-			if (is_string($props)) $props = explode(",", $props);
-			foreach ($props as $prop) {
-				self::$props[$prop] = [];
-			}
-
-			if ($args) {
-			}
-
-			/*
-			 * the mode should now update the entity
-			 */
-			self::updateEntityFromModel();
-			// strip off namespaces
-//            self::$model = new $modelClass();
-			// every entity will require
-//            self::$id = self::$entity . "_id" ;
-//            self::addProp(self::$table . "_id" ,
-//                "integer" ,
-//                null ,
-//                [
-//                    'autoincrement' => "true" ,
-//                    'not null'=>true,
-//                    "primary key"=>true]);
-//            foreach ($fields as $field) {
-//                self::debug("adding field ",$field['name']);
-//                self::addField($field['name'],$field['type'],$field['len'],$field);
-//            }
-			static::$_init = true;
-		}
-
-	}
-
-	public static function entityName($className = null)
-	{
-		$name = $className ?? self::$entityClass;
-		return Util::baseName($name);
-	}
-
-	public static function updateEntityFromModel()
-	{
-		/*
-		 * find all the fields , foreign keys and vlinks
-		 */
-		$model = Core\Model::getModel(self::$modelClass);
-		/*
-		 * need a name mapping schema!!
-		 */
-		foreach ($model->fields as $name => $field) {
-			self::addProp($name);   // TODO : transform names into entity style names not underscore
-		}
-
-		foreach ($model->fks as $fk) {
-			// each foreign key needs to create two entries in the Entity - the id and the object
-
-			// fk already defined as a property!
-			// self::addProp($fk->name);   // TODO : transform names into entity style names not underscore
-			self::addProp($fk->model->entityName);   // should add cruiseline to ship
-		}
-		// add vlinks as methods? eg ships() for cruiseline
-	}
-
 
 	public function id($id = null)
 	{
-		$name = self::$id;
+		$name = $this->em->idName;
 		if ($id) {
 			$this->$name = $id;
 		}
 		return $this->$name;
 	}
 
-	/**
-	 * @param $name
-	 * @param null $modelName
-	 * @param null $args
-	 */
-	/*
-	 * modelName is bad name
-	 * it should be mapped name it mapping the property to the model
-	 */
-	public static function addProp($name, $modelName = null, $args = [])
-	{
-		if (isset(self::$props[$name])) {
-			self::error("property name [$name] being redefined!");
-		}
-		$prop = [
-				  'name' => $name,
-				  'modelName' => ($modelName) ? $modelName : $name,
-				  'args' => $args
-		];
-
-		foreach ($args as $key => $arg) {#
-			$prop[$key] = $arg;
-		}
-		self::$props[$name] = (object) $prop;
+	function isProperty($name) {
+		return $this->em->isProperty($name);
 	}
-
-
-	public function __construct() {
-		static::init();   // hopefully late bound!!
-
-	}
-
 	/*
 	 * need a way to bypass the dirty check - write direct to obj
-	 * from the Model
-	 * doesn't work!! gotta store values in an array not on the object
 	 */
 	public function _set_($name, $value)
 	{
-		if (isset(self::$props[$name])) {
+		if ($this->isProperty($name)) {
 			$this->data[$name] = $value;
 		} else {
-			self::error("SET Reference to an undefined property [$name] in Class : " . self::$className);
+			self::error("SET Reference to an undefined property [$name] in Class : " . static::class);
 		}
 		return $this;
 	}
 
 	public function __set($name, $value)
 	{
-		if (isset(self::$props[$name])) {
+		if ($this->isProperty($name)) {
 			if ($this->$name !== $value) {
 				$this->dirty = true;      // to allow setting dirty to false!!
 				$this->data[$name] = $value;
 			}
 		} else {
-			self::error("SET Reference to an undefined property [$name] in Class : " . self::$className);
+			self::error("SET Reference to an undefined property [$name] in Class : " . static::class );
 		}
 		return $this;
 	}
 
 	public function __get($name)
 	{
-		if (isset(self::$props[$name])) {
+		if ($this->isProperty($name)) {
 			return $this->data[$name];
 		} else {
-			self::error("GET Reference to an undefined property [$name] in Class : " . self::$className);
+			self::error("GET Reference to an undefined property [$name] in Class : " . static::class);
 		}
 	}
 
@@ -242,7 +131,7 @@ class Entity extends Base
 	 */
 	public function save() {
 
-		self::$model->save($this);
+		$this->em->model->save($this);
 	}
 
 	/*
@@ -252,7 +141,7 @@ class Entity extends Base
 	{
 //		public static function findAddKey($table, $id , $keyField , $data)
 //		Core\Db::findKeyOrAdd(self::)
-		self::$model->saveKeyOrAdd($key, $this);
+		$this->em->model->saveKeyOrAdd($key, $this);
 		return $this;
 	}
 
@@ -261,9 +150,11 @@ class Entity extends Base
 	 * again working, with unoque
 	 */
 	public static function findUniqueBy($field, $value) {
-		return self::$model->findUniqueBy($field,$value);
+		$em = EM::getEntityManager(static::class);
+		return $em->model->findUniqueBy($field,$value);
 
 	}
 
 
 }
+

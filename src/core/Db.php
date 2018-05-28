@@ -13,9 +13,8 @@ use Core;
  */
 class Db extends \PDO
 {
-	use _Base;
+//	use _Base;
 
-	public static $className = __CLASS__;
 	public static $db;
 
 	public $dbHost;

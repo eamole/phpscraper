@@ -9,12 +9,49 @@
 namespace Core;
 
 
-class Util
+class Util extends Base
 {
+	public static $plurals = ["ies" => "y", "es" => "", "s" => "", "a" => "um"];
+								// monkey(s) , funny(ies), datum(a) , box(es)
+	public static $singulars = [ 'ey' => 's' ,'y' => "ies" , 'um' => "a" , 'x' => 'xes' ];
 
 	public static function baseName($fullClassName) {
 		// PhpStom error '\' is being escaped!!
-		$className = end($arr=explode("\\", $fullClassName));
+		$arr=explode("\\", $fullClassName);
+		$className = end($arr);
 		return $className;
+	}
+	/*
+	 * use common english plural endings to get singular
+	 */
+	public static function getSingular($word) {
+		$ret = null;
+		foreach (self::$plurals as $plural => $singular) {
+			// compare
+			if (substr($word, 0 - strlen($plural)) == $plural) {
+				// strip off ending
+				$ret = substr($word, 0, strlen($plural)) . $singular;
+				break;
+			}
+		}
+		return $ret;
+	}
+
+	public static function getPlural($word) {
+		$ret = null;
+		$found = false;
+		foreach (self::$singulars as $singular => $plural ) {
+			// compare word ending with sing
+			if (substr($word, 0 - strlen($singular)) == $singular) {
+				// strip off ending
+				$ret = substr($word, 0, strlen($singular)) . $plural;
+				$found = true;
+				break;
+			}
+		}
+
+		if(!$found) $ret = $word . "s";	// default english plural
+
+		return $ret;
 	}
 }

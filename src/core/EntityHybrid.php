@@ -10,7 +10,7 @@ namespace Core;
 
 
 class EntityHybrid extends Base{
-    use _Base;
+//    use _Base;
 
     public static $entity;
     public static $table;

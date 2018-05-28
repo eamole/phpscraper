@@ -11,8 +11,7 @@ use Core;
 use Entity;
 
 class CruiseLines extends Core\Model {
-	use Core\_Base;
-	
+
 	/**
 	 * CruiseLines constructor.
 	 * @param $tableName

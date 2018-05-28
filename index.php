@@ -6,6 +6,22 @@
  * Time: 02:24
  */
 //phpinfo();
+/*
+class A {
+
+	public static function go() {
+		return "Hello guys ".static::class;
+	}
+}
+class B extends A {
+
+
+}
+
+echo A::go();
+
+exit ("done");
+*/
 
 error_reporting (E_ALL );
 include "src/SplClassLoader.php";
@@ -43,8 +59,10 @@ App\Db::init();
  * circular!! Therefore change them to deferred methods
  *
  */
-\Entity\CruiseLine::init();
-\Entity\Ship::init();
+
+
+//\Entity\CruiseLine::init();
+//\Entity\Ship::init();
 
 $ships=\Model\Ships::$model;
 $cruiselines = \Model\CruiseLines::$model;

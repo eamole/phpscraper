@@ -14,8 +14,7 @@ use Entity;
 class CruiseScrape extends Core\EntityHybrid
 {
 	
-	use Core\_Base;
-	
+
 	/*
 	 * this duplicating the fields below!!
 	 */

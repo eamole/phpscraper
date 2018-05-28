@@ -10,9 +10,9 @@ namespace Core;
 
 use Core;
 
-class App
+class App extends Base
 {
-	use _Base;
+//	use _Base;
 
 	public static $app;
 	public static $name;
