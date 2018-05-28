@@ -9,10 +9,13 @@
 namespace Entity;
 
 use Core;
-use Entity;
+use Model;
 
 class Ship extends Core\Entity
 {
+
+	public static $_init = false;
+
 //	public $shipId;			// ship_id
 //	public $name;
 //	public $cruiseLine;		// this is actually an object!! need to link to entity
@@ -22,17 +25,18 @@ class Ship extends Core\Entity
 
 	public static function init()
 	{
-
-		parent::init(Entity\Ships::class, self::class, [
-			'shipId' , 'name' , 'cruiseLine' , 'cruiseLineId' , 'logo' , 'details'
-		]);
+		// not used derived from model
+		// [
+		//			'shipId' , 'name' , 'cruiseLine' , 'cruiseLineId' , 'logo' , 'details'
+		//		]
+		parent::init(Model\Ships::class, self::class );
 
 	}
 
 	public function __construct()
 	{
-		parent::__construct("ship");
-		self::init(Ships::$className, []);
+//		self::init();	// not required - parent::con will do
+		parent::__construct();
 	}
 
 

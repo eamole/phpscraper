@@ -35,17 +35,18 @@ use Core;
 
 class Entity extends Base
 {
-	use _Base;
+	// lets see if putting in top level makes a diff
+//	public static $_init = false;
 
+	use _Base;
 	public static $entityName;
 	// ideally these would be Class objects!! might use a trait - bind class static to an object
 	public static $entityClass;
+
 	public static $modelClass;
 
 	public static $idName;  // ???
-
 	public static $entities = []; // each Entity class
-	public static $_init = false;
 	// orm mapping
 
 	public static $props = [];
@@ -60,7 +61,7 @@ class Entity extends Base
 //    public $_fields;    // a reference - not required I think dbg shows statics
 
 
-	public static $data;    // this is where the object data is stored in keyed array
+	public $data;    // this is where the object data is stored in keyed array
 
 	public $dirty = false; // only save if a value changed/set
 
@@ -70,8 +71,8 @@ class Entity extends Base
 	 */
 	public static function init($modelClass, $entityClass, $props = [], $args = [])
 	{
-
-		if (!self::$_init) {
+		// I'm thinking there might be only one _init flag for all Entity classes
+		if (!static::$_init) {
 			self::$modelClass = $modelClass;  // to create objects from queries
 			self::$model = new $modelClass;
 			self::$entityClass = $entityClass;
@@ -108,7 +109,7 @@ class Entity extends Base
 //                self::debug("adding field ",$field['name']);
 //                self::addField($field['name'],$field['type'],$field['len'],$field);
 //            }
-			self::$_init = true;
+			static::$_init = true;
 		}
 
 	}
@@ -133,8 +134,10 @@ class Entity extends Base
 		}
 
 		foreach ($model->fks as $fk) {
-			// each foreign key needs to create two entries in the Entity
-//			self::addProp($fk->name);	// TODO : transform names into entity style names not underscore
+			// each foreign key needs to create two entries in the Entity - the id and the object
+
+			// fk already defined as a property!
+			// self::addProp($fk->name);   // TODO : transform names into entity style names not underscore
 			self::addProp($fk->model->entityName);   // should add cruiseline to ship
 		}
 		// add vlinks as methods? eg ships() for cruiseline
@@ -155,12 +158,16 @@ class Entity extends Base
 	 * @param null $modelName
 	 * @param null $args
 	 */
+	/*
+	 * modelName is bad name
+	 * it should be mapped name it mapping the property to the model
+	 */
 	public static function addProp($name, $modelName = null, $args = [])
 	{
 		if (isset(self::$props[$name])) {
 			self::error("property name [$name] being redefined!");
 		}
-		$prop = (object)[
+		$prop = [
 				  'name' => $name,
 				  'modelName' => ($modelName) ? $modelName : $name,
 				  'args' => $args
@@ -169,20 +176,15 @@ class Entity extends Base
 		foreach ($args as $key => $arg) {#
 			$prop[$key] = $arg;
 		}
-		self::$props[$name] = $prop;
+		self::$props[$name] = (object) $prop;
 	}
 
 
-	public function __construct($name = null)
-	{
+	public function __construct() {
 		static::init();   // hopefully late bound!!
-		if ($name) {
-			$this->name = $name;
-			self::$entities[$name] = $this;
 
-		}
-//        $this->_fields = &self::$fields;
 	}
+
 	/*
 	 * need a way to bypass the dirty check - write direct to obj
 	 * from the Model
@@ -202,7 +204,7 @@ class Entity extends Base
 	{
 		if (isset(self::$props[$name])) {
 			if ($this->$name !== $value) {
-				$this->dirty = true;		// to allow setting dirty to false!!
+				$this->dirty = true;      // to allow setting dirty to false!!
 				$this->data[$name] = $value;
 			}
 		} else {
@@ -235,6 +237,13 @@ class Entity extends Base
 	 * work with the DB
 	 */
 
+	/*
+	 *
+	 */
+	public function save() {
+
+		self::$model->save($this);
+	}
 
 	/*
 	 * using the id
@@ -249,9 +258,10 @@ class Entity extends Base
 
 	/*
 	 * this should find ALL values in a QBE manner
+	 * again working, with unoque
 	 */
-	public function findBy($field)
-	{
+	public static function findUniqueBy($field, $value) {
+		return self::$model->findUniqueBy($field,$value);
 
 	}
 

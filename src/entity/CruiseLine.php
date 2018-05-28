@@ -12,6 +12,8 @@ use Model;
 
 class CruiseLine extends Core\Entity{
 
+	public static $_init = false;
+
 //	public $name,$logo;	// to avoid warnings when accessing them - using data array now
 
 	public static function init()

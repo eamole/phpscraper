@@ -21,9 +21,9 @@ class Model
 {
 	use _Base;
 
-	public static $model;	// singleton
+	public static $model;   // singleton
 	// properties, boxes , nuts
-	public static $plurals = ["ies" => "y" , "es" => "" , "s" => "" , "a" => "um" ];
+	public static $plurals = ["ies" => "y", "es" => "", "s" => "", "a" => "um"];
 	public $tableName;       // should be plural of entity
 	public $entityClass;     // link to entityClass
 // must defer till Entity has been constructed - circular
@@ -31,24 +31,24 @@ class Model
 	public $entityName;          //
 	public $idField;              // id field name &entity_id
 	public $fields = [];       // a list of field names types etc
-	public $fks = [];				// link fields to other tables
-	public $vlinks = [];			// these are virtual links - backlinks to table which link to us
+	public $fks = [];            // link fields to other tables
+	public $vlinks = [];         // these are virtual links - backlinks to table which link to us
 	public $entityMappings = [];   // mappings from entity to fields
 	public $fieldMappings = [];   // mappings from fields to entity
 
 //    public static $dbMappings = [];  // mappings in and out of db
 
-										// this should be model class, get table name from there
-										// needed
+	// this should be model class, get table name from there
+	// needed
 	public function __construct($tableName, $entityClass, $fields = [], $args = [])
 	{
 		// ??
-		static::$model=$this;	// make sure the model is accessible from toplevel class static
+		static::$model = $this;   // make sure the model is accessible from toplevel class static
 		$this->tableName = $tableName;
 		$this->entityClass = $entityClass;
-		$this->entityName=$this->entityName();
-		$this->idField = strtolower($this->entityName). "_id";   // this field needs to be mapped to entitySchema
-		$this->addField($this->idField, ['pk' => true ] );
+		$this->entityName = $this->entityName();
+		$this->idField = strtolower($this->entityName) . "_id";   // this field needs to be mapped to entitySchema
+		$this->addField($this->idField, ['pk' => true]);
 
 		/*
 		 * cannot use anything in the Entity as it may not have been constructed yet
@@ -56,8 +56,8 @@ class Model
 //		$this->entityName = $entityClass::$entityName;
 //		if(empty($this->entityName )) self::warning("Empty entity name from Entity in Model [%0]",$this->entityName);
 
-		if(is_string($fields)) {
-			$fields=explode(",",$fields);
+		if (is_string($fields)) {
+			$fields = explode(",", $fields);
 		}
 		foreach ($fields as $index => $field) {
 			$this->addField($field);
@@ -76,35 +76,41 @@ class Model
 
 	}
 
-	public function addField($name,$args=[]) {
-		$field =strtolower($name);
-		if(isset($this->fields[$name])){
-			self::warning("Adding a field [$name] that already exists in Model [%0]",$this->tableName);
+	public function addField($name, $args = [])
+	{
+		$field = strtolower($name);
+		if (isset($this->fields[$name])) {
+			self::warning("Adding a field [$name] that already exists in Model [%0]", $this->tableName);
 		} else {
 			$field = [
 					  'name' => $name
 			];
-			foreach ($args as $key=>$arg) {
-				$field[$key]=$args;
+			foreach ($args as $key => $arg) {
+				$field[$key] = $args;
 
 			}
 			$this->fields[$name] = (object)$field;
 		}
 	}
+
 	/*
 	 * can't must come from the entity or the actual model
 	 */
-	static function getModel($modelClass) {
-		if(!$modelClass::$model){
-			self::$model=new $modelClass();
+	static function getModel($modelClass)
+	{
+		if (!$modelClass::$model) {
+			self::$model = new $modelClass();
 		}
 		return self::$model;
 	}
-	function isField($name) {
+
+	function isField($name)
+	{
 		return isset($this->fields[$name]);
 	}
 
-	public function entityName($className = null) {
+	public function entityName($className = null)
+	{
 		$name = $className ?? $this->entityClass;
 		$name = strtolower(Util::baseName($name));
 		// bloody hell, entity name is already singular!!
@@ -123,13 +129,14 @@ class Model
 	/*
 	 * use lowercase singular + _id
 	 */
-	public function getSingular($word){
-		$ret=null;
-		foreach (self::$plurals as $plural => $singular ) {
+	public function getSingular($word)
+	{
+		$ret = null;
+		foreach (self::$plurals as $plural => $singular) {
 			// compare
-			if(substr($word,0-len($plural))==$plural ) {
+			if (substr($word, 0 - len($plural)) == $plural) {
 				// strip off ending
-				$ret = substr($word,0, len($plural)).$singular;
+				$ret = substr($word, 0, len($plural)) . $singular;
 				break;
 			}
 		}
@@ -139,81 +146,151 @@ class Model
 	 * assume a class exists - really should have an ORM class extending the model
 	 */
 	/**
-	 * @param $modelClass
-	 * @param null $fieldName
-	 * @param null $fkFieldName
-	 * @param string $type
-	 * @param null $vlinkName
+	 * modelClass : this is the field we point into
+	 * the local key refers to the remote primary key
 	 */
-	public function fk($modelClass, $fieldName=null, $fkFieldName=null, $type="ManyToOne", $vlinkName=null) {
+	public function fk($modelClass, $fieldName = null, $fkFieldName = null, $type = "ManyToOne", $vlinkName = null)
+	{
 
-		$fkModel = self::getModel($modelClass);	// bet the foreign model
-		$localName = $fieldName ?? $fkModel->idField;	// determine local field name - id
-		$fkFieldName = $fkFieldName ?? $localName;	//  remote field name - same as local
-		if(!$fkModel->isField($fkFieldName)) {
+		$fkModel = self::getModel($modelClass);   // get the remote/foreign model
+		$localName = $fieldName ?? $fkModel->idField;   // determine local field name - id
+
+		$fkFieldName = $fkFieldName ?? $localName;   //  remote field name - same as local
+		if (!$fkModel->isField($fkFieldName)) {
 			self::error("Invalid remote foreign key [%0].[$fkFieldName]", $fkModel->tableName);
 		}
-		if($this->isField($localName)) {
-			self::warning("Attempting to overwrite a field def [%0].[$localName]",$this->tableName);
+		if ($this->isField($localName)) {
+			// really I should just update the field with FK info
+			self::warning("Attempting to overwrite a field def [%0].[$localName]", $this->tableName);
 		} else {
 			// assume link to id
 			// TODO : validate fhFieldName against the model
 			$fk_table = $fkModel->tableName;
 			/** @var TYPE_NAME $fkModel */
-			$fk = (object) [
-				'name' 		=> $localName ,
-				'type' 		=> 'int' ,
-				'fk_table'	=> $fkModel->tableName,
-				'fk_field' 	=>	$fkFieldName,
-				'fk_model'	=> $fkModel
+			$fk = (object)[
+					  'name' => $localName,
+					  'type' => 'int',
+					  'fk_table' => $fkModel->tableName,
+					  'fk_field' => $fkFieldName,
+					  'fk_model' => $fkModel
 			];
 			$this->fields[$localName] = $fk;
 			$fks[$localName] = $fk;
 			// vlinks
 			// the back link will be known as this table name - ie select all ships in cruiseline
 			$vlinkName = $vlinkName ?? $this->tableName;
-			$fkModel->vlink($vlinkName,$this,$fk);
+			$fkModel->vlink($vlinkName, $this, $fk);
 
 		}
 	}
 
-	public function vlink($name,$model,$fk) {
-		if($this->isField) {
+	public function vlink($name, $model, $fk)
+	{
+		if ($this->isField) {
 			self::warning("Trying to create a virtual link [$name] from [%3] with same name as real field [%0].[%1]",
-				$this->tableName,$name,$model->tableName);
+					  $this->tableName, $name, $model->tableName);
 		} else {
-			$this->vlinks[$name] = ['model' => $model ,
-											'rel'	=> $fk
-										];
+			$this->vlinks[$name] = ['model' => $model,
+					  'rel' => $fk
+			];
 		}
 	}
+
 	/*
 	 * This should probable be a specialised form of findBy
 	 */
-	public static function find($id)
+	public function find($id)
+	{
+		$entity = $this->findUniqueBy(self::$idField, $id);
+		return $entity;
+	}
+
+	public function findUniqueBy($fieldName, $value)
 	{
 
-		$rows = Db::$db->findBy(self::$tableName, self::$id, $id);
+		$rows = Db::$db->findBy($this->tableName, $fieldName, $value);
 		// copy of code from DB
 		if (!$rows) {    // $data->count() == 0
-			self::warning("did not find id [$id] on [%0.%1]", self::$tableName, self::$id);
+			self::warning("did not find unique [$value] on [%0.%1]", $this->tableName, $fieldName);
 			return $rows;
 
 		} else {
 
 			if (count($rows) > 1) {
 				// error keyField should be unique
-				self::error("id field [%1] value [ $id ] should be unique in table [ %0 ]", self::$tableName, self::$id);
+				self::error("unique field [%1] value [ $value ] should be unique in table [ %0 ]. Returned [%2] objects",
+						  $this->tableName, $fieldName, count($rows));
 				return null;
 			} else {
 				$row = $rows[0]; //single record
-				$entity = new self::$entityClass();
-				$entity = self::rowToEntityMapping($row, $entity);
+				$entity = new $this->entityClass();
+				$entity = $this->rowToEntityMapping($row, $entity);
 				return $entity;
 			}
 		}
 
 	}
+
+	/*
+	 * INSERT
+	 * must not have ID (otherwise it becomes a copy on the table, not in memory
+	 * encapsulate the insert logic
+	 */
+	private function insert($entity)
+	{
+		// no guards
+		if (!$entity->dirty) self::warning("creating(saving) a non-dirty entity");
+		$row = $this->entityToRowMapping($entity);
+		$row = Db::$db->insert($this->tableName, $this->idField, $row);   // $table, $id, $keyField, $data
+		$this->rowToEntityMapping($row, $entity);   // hopefully ext entity updated
+		return $row;
+	}
+
+
+	/*
+	 * UPDATE
+	 * must have ID or an alt key
+	 * keyField : an alt key for updates - must/should be unique
+	 */
+	private function update($entity, $keyField = null)
+	{
+		// no guard - check for ID
+		$keyField = $keyField ?? $this->idField;
+		$row = $this->entityToRowMapping($entity, []);
+		$row = Db::$db->updateKey($this->tableName, $this->idField, $keyField, $row);   // $table, $id, $keyField, $data
+		// should really read the row - as it is stored not as we think it is
+		$this->rowToEntityMapping($row, $entity);   // hopefully ext entity updated
+		return $row;
+	}
+
+	/*
+	 * $keyField : alternate unique key for update eg unique names
+	 */
+	public function save($entity, $keyField = null)
+	{
+		/*
+		 * test if has an id
+		 * if not INSERT
+		 * else
+		 * UPDATE
+		 */
+		$idField = $this->idField;
+		$keyField = $keyField ?? $idField;
+		if ($entity->$idField) {      // no id
+			$row = $this->insert($entity);
+			return $row;
+		} else {
+			/*
+			 * UPDATE
+			 */
+			$row = $this->update($entity, $keyField);
+			return $row;   // $entity???
+
+
+		}
+
+	}
+
 	/*
 	 * called with entities
 	 * assumes the prop field is unique!! therefore can add if not found
@@ -223,69 +300,69 @@ class Model
 	 * @param $entity
 	 * @return mixed|null
 	 */
-	public function saveKeyOrAdd($keyProp , $entity){
-		
+	public function saveKeyOrAdd($keyProp, $entity)
+	{
+
 		/*
 		 * shit we need a mapping from property field name to field name
 		 */
 		$keyField = $keyProp;
 		$value = $entity->$keyProp;
 
-		$rows = Db::$db->findBy($this->tableName, $keyField , $value );
+		$rows = Db::$db->findBy($this->tableName, $keyField, $value);
 		// copy of code B
 		if (!$rows) {    // $data->count() == 0
-			// ADDD
+			/*			// ADDD
 
-			$row = $this->entityToRowMapping($entity);
-			$row = Db::$db->insert($this->tableName,$this->idField,$row);	// $table, $id, $keyField, $data
+						$row = $this->entityToRowMapping($entity);
+						$row = Db::$db->insert($this->tableName,$this->idField,$row);	// $table, $id, $keyField, $data
 
-			// we should probably maps the row values back - not too sure if we should read them first
-			// to get table based defaults etc
-			$this->rowToEntityMapping($row,$entity);	// hopefully ext entity updated
+						// we should probably maps the row values back - not too sure if we should read them first
+						// to get table based defaults etc
+						$this->rowToEntityMapping($row,$entity);	// hopefully ext entity updated*/
+			$row = $this->insert($entity);
 			return $row;
-			
+
 		} else {
-			
+
 			if (count($rows) > 1) {
 				// error keyField should be unique
 				self::error("key field [%1] value [ $value ] should be unique in table [ %0 ]", self::$tableName, $keyField);
 				return null;
 			} else {
 				$row = $rows[0]; //single record
-				
+
 				//overwrite the row data with the object
-				$row = $this->entityToRowMapping($entity, $row);
-				// now we need to filter the row!! shouldn't update id
-//				if($this->isField($field) && ($field !== $this->idField))
-//					$row[$field] = $value;
+				/*$row = $this->entityToRowMapping($entity, $row);
 
-
-				$db = Core\DB::getDb();
-				$db->updateKey($this->tableName,$this->idField,$keyField,$row);	// $table, $id, $keyField, $data
+				$row = Db::$db->updateKey($this->tableName,$this->idField,$keyField,$row);	// $table, $id, $keyField, $data
 				// should really read the row - as it is stored not as we think it is
 				$this->rowToEntityMapping($row,$entity);	// hopefully ext entity updated
+				*/
+				$row = $this->update($entity, $keyField);   // use an alt key other than id
 				return $entity;
 			}
 		}
 
 	}
+
 	/*
 		 * need to ensure only props with fields
 		 */
-	public function entityToRowMapping($entity, $row=[])
+	public function entityToRowMapping($entity, $row = [])
 	{
 		$_entity = (array)$entity;
 		// we need a list of field names and properties
 		foreach ($_entity as $prop => $value) {
 			// only map fields that exist on the row
-			$field = (isset(self::$entityMappings[$prop])) ? self::$entityMappings[$prop] : $prop ;
+			$field = (isset($this->entityMappings[$prop])) ? $this->entityMappings[$prop] : $prop;
 
 			// maps value as well
-			$value = $_entity[$prop];	//might be better using the originla entity->__get()
+			$value = $_entity[$prop];   //might be better using the originla entity->__get()
 			/*
 			 * only use property values who map to a field
 			 */
-			if($this->isField($field) && ($field !== $this->idField))
+			if ($this->isField($field) && ($field !== $this->idField))
 				$row[$field] = $value;
 		}
 		return $row;
@@ -303,10 +380,10 @@ class Model
 		// we need a list of field names and properties
 		foreach ($row as $field => $value) {
 			// only map fields that exist on the row
-			$prop = (isset(self::$fieldMappings[$field])) ? self::$fieldMappings[$field] : $field ;
+			$prop = (isset($this->fieldMappings[$field])) ? $this->fieldMappings[$field] : $field;
 
 			// allow fo remapped values as well
-			$value = $row[$field];	//might be better using the originla entity->__get()
+			$value = $row[$field];   //might be better using the originla entity->__get()
 			/*
 			 * only use property values who map to a field
 			 */
@@ -321,6 +398,5 @@ class Model
 		return $entity;
 	}
 
-	
-	
+
 }

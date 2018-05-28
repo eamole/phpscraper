@@ -43,11 +43,14 @@ App\Db::init();
  * circular!! Therefore change them to deferred methods
  *
  */
-/*\Entity\CruiseLine::init();
+\Entity\CruiseLine::init();
+\Entity\Ship::init();
 
-$cruiseline = new \Entity\CruiseLine("test4");
-$cruiseline->logo = "none";
-$cruiseline->saveOrAddKey("name");*/
+$ships=\Model\Ships::$model;
+$cruiselines = \Model\CruiseLines::$model;
 
-$ship=new Ship();
-$ship->
+$cruiseline = \Entity\CruiseLine::findUniqueBy("name","test4");
+
+$ship=new Entity\Ship();
+$ship->cruiseline =$cruiseline;
+$ship->save();
