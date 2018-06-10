@@ -6,12 +6,13 @@
  * Time: 14:53
  */
 
-namespace Scraper;
-use Core;
-use Entity;
+namespace App\Scrapers;
 
-class CruiseCritic extends Core\Scraper {
-    use Core\_Base;
+use Scraper;
+use Core;
+use App\ORM\Entities;
+
+class CruiseCritic extends Scraper\Scraper {
     /*
      * may need subdomains for images!! - not the same url for all
      */
@@ -31,7 +32,7 @@ class CruiseCritic extends Core\Scraper {
 
         // padd the captured data across
 //        Entity\CruiseScrape::$data=;
-        Entity\CruiseScrape::saveAll($this->data);
+        Entities\Cruise::saveAll($this->data);
 
         if(function_exists("yaml_emit")) {
             $str = yaml_emit( $this->data );
@@ -39,8 +40,12 @@ class CruiseCritic extends Core\Scraper {
 
         } else {
             $str = json_encode($this->data,JSON_PRETTY_PRINT);
-            self::dump($str);
-            Core\App::writeFile("data/" . "data.json" , $str );
+            if(!$str) {
+            	self::error( json_last_error_msg());
+				} else {
+					self::dump($str);
+					Core\App::writeFile("data/" . "data.json" , $str );
+				}
         }
 
         return $this->data;
@@ -67,7 +72,7 @@ class CruiseCritic extends Core\Scraper {
 
     public function upcoming_cruise($node) {
 
-        $cruise = new Entity\CruiseScrape();
+        $cruise = new Entities\Cruise();
         $cruise->fromHtml($node);
         return $cruise;
     }

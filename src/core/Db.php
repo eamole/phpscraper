@@ -28,10 +28,10 @@ class Db extends \PDO
 		self::warning("This method should never be called directly - should calling the App version");
 	}
 
-	public static function connectToWP($pathToWP)
+	public static function connectToDb($pathToConfig,$filename="wp-config.php")
 	{
 
-		require($pathToWP . "wp-config.php");
+		require($pathToConfig . $filename);
 
 		$hostName = DB_HOST;
 		$dbName = DB_NAME;
@@ -56,10 +56,10 @@ class Db extends \PDO
 	public function __construct($hostName, $dbName, $userName, $password, $driverOptions = [])
 	{
 
-		$this->hostName = DB_HOST;
-		$this->dbName = DB_NAME;
-		$this->userName = DB_USER;
-		$this->password = DB_PASSWORD;
+		$this->hostName = $hostName;
+		$this->dbName = $dbName;
+		$this->userName = $userName;
+		$this->password = $password;
 
 		parent::__construct("mysql:host=" . $hostName . ";dbname=" . $dbName, $userName, $password, $driverOptions);
 		$this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -180,14 +180,14 @@ class Db extends \PDO
 		}
 		// trying to get the id back from the updated row
 		// $sql = "SET @id :=0 ; UPDATE $table SET $assigns , $idField = (SELECT @id := $idField)  WHERE $keyField = :$keyField ; SELECT @id ;";
-		$sql = "UPDATE $table SET $assigns WHERE $keyField = :$keyField ; ";
+		$sql = "UPDATE $table SET $assigns , $idField=LAST_INSERT_ID($idField) WHERE $keyField = :$keyField ; SELECT LAST_INSERT_ID();";
 		// last_insert_id can take a parameter, which it will return the next time its called
 		// not sure why I would update the id
 		//		$sql = "UPDATE $table SET $assigns , $idField = LAST_INSERT_ID($id)  WHERE $keyField = :$keyField ; ";
 
 		$stmt = $this->prepare($sql);
 		$rows = $stmt->execute($data);
-//		$data[$id] = \PDO::lastInsertId(); // TODO - problem with knwing the field name of the id
+		$data[$idField] = \PDO::lastInsertId(); // TODO - problem with knwing the field name of the id
 		return $data;
 
 	}

@@ -26,13 +26,14 @@ exit ("done");
 error_reporting (E_ALL );
 include "src/SplClassLoader.php";
 
+include "src/phpquery/phpQuery-onefile.php";
+
 $loader = new SplClassLoader( null, array('src/'));
 $loader->register();
 
 App\AppScraper::init();
 
-include "src/scrapers.php";
-include "src/phpquery/phpQuery-onefile.php";
+//include "src/app/scrapers.php";
 
 //$html = file_get_contents("src/upcoming_cruises.html");
 //if(!$html) {
@@ -40,7 +41,7 @@ include "src/phpquery/phpQuery-onefile.php";
 //}
 //echo "Hello";
 
-//echo scraper_cruise_list($html);
+
 /*
  * most important - need to come in at the top to force
  * an init - the lower Core/Db doesn't know how to connect
@@ -66,9 +67,9 @@ use App\ORM\Entities;
 //\Entity\Ship::init();
 
 $ships=App\ORM\Models\Ships::getModel();
-$cruiselines = Models\CruiseLines::getModel();
+$cruiselines = Models\Cruiselines::getModel();
 
-$cruiseline = Entities\CruiseLine::findUniqueBy("name","test4");
+$cruiseline = Entities\Cruiseline::findUniqueBy("name","test4");
 
 $ship=new Entities\Ship();
 $ship->cruiseline =$cruiseline;

@@ -78,7 +78,7 @@ class EntityHybrid extends Core\Base{
 
 
     public function __construct($name) {
-		 parent::_construct();
+//		 parent::__construct();
         self::$entities[$name] = $this;
 //        $this->_fields = &self::$fields;
     }

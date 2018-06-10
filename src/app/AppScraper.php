@@ -18,6 +18,12 @@ class AppScraper extends Core\App
 	{
 
 		parent::init(self::class, "The Scraper App", Db::class );
+
+		$cruiseScraper = new Scrapers\CruiseCritic();
+		$cruises = $cruiseScraper->getUpcoming();
+
+
+
 	}
 
 

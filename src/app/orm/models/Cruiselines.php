@@ -12,10 +12,10 @@ use ORM\Entity;
 use App\ORM\Entities;
 use ORM\Model;
 
-class CruiseLines extends Model {
+class Cruiselines extends Model {
 
 	/**
-	 * CruiseLines constructor.
+	 * Cruiselines constructor.
 	 * @param $tableName
 	 * @param $entityClass
 	 * @param array $fields
@@ -23,7 +23,7 @@ class CruiseLines extends Model {
 	 */
 	public function __construct()
 	{
-		parent::__construct( self::class , Entities\CruiseLine::class, null,
+		parent::__construct( self::class , Entities\Cruiseline::class, null,
 				  "name,details,url,logo");
 		// vlinks should be set by ships
 

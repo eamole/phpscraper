@@ -58,6 +58,7 @@ class EntityManager extends Core\ClassStatic {
 				if(class_exists($_modelClass)) $modelClass=$_modelClass;
 			}
 			$em = new EntityManager($entityClass, $modelClass, $props, $args);
+			EMM::registerEntityManager($em);
 		} else {
 			$em = EMM::getEntityManager($entityClass);
 		}
@@ -113,6 +114,11 @@ class EntityManager extends Core\ClassStatic {
 		 */
 		self::updateEntityFromModel();
 
+		// now see if there is a a static init() method on the entity
+		if(method_exists($entityClass,"init")) {
+			call_user_func([$entityClass,"init"],$this);
+		}
+
 	}
 
 	public function idName() {
@@ -159,7 +165,14 @@ class EntityManager extends Core\ClassStatic {
 		// add vlinks as methods? eg ships() for cruiseline
 	}
 
-
+	public function addProps($props) {
+		if(is_string(($props))){
+			$props=explode(",",$props);
+		}
+		foreach ($props as $prop) {
+			$this->addProp($prop);
+		}
+	}
 	/**
 	 * @param $name
 	 * @param null $modelName
@@ -175,17 +188,25 @@ class EntityManager extends Core\ClassStatic {
 		if (isset($this->props[$name])) {
 			self::error("property name [$name] being redefined!");
 		}
-		$prop = [
-				  'name' => $name,
-				  'fieldName' => $fieldName ?? $name,
-				  'args' => $args
-		];
+		$prop = new ORM\Platform\Php\PropertyDef($this, $name, $args);
+
+		$this->props[$name] = $prop;
+		return $prop;
+
+		/*
+				$prop = [
+						  'name' => $name,
+						  'fieldName' => $fieldName ?? $name,
+						  'args' => $args
+				];
 
 		foreach ($args as $key => $arg) {#
 			$prop[$key] = $arg;
 		}
-		$this->props[$name] = (object) $prop;
+				$this->props[$name] = (object) $prop;*/
+
 	}
+
 	public function addFk($fk) {
 		$name = strtolower($fk->model->entityName);	// need a netter strategy than this - there may ne multiple fk links!!
 		if (isset($this->props[$name])) {

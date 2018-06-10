@@ -6,7 +6,7 @@
  * Time: 13:08
  */
 
-namespace Core;
+namespace Scraper;
 
 use Core;
 
@@ -14,9 +14,9 @@ use Core;
  * model each scraped website
  */
 
-class Scraper extends Base
+class Scraper extends Core\Base
 {
-	use  _List;
+	use  Core\_List;
 
 	public $name;
 	public $domain;
@@ -27,7 +27,7 @@ class Scraper extends Base
 
 	public function __construct($name, $domain)
 	{
-		parent::_construct();
+//		parent::_construct();
 
 		$this->name = $name;
 		$this->domain = $domain;
@@ -59,7 +59,7 @@ class Scraper extends Base
 		$url = $this->urls[$name]['url'];
 		$scraper = $this->urls[$name]['scraper'];
 
-		$this->html = Http::_get($url);
+		$this->html = Core\Http::_get($url);
 		$this->dom = \phpQuery::loadHtml($this->html);
 
 		return $this;

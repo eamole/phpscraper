@@ -24,8 +24,8 @@ class EntityManagerManager extends Core\Base{
 		return self::$entityClasses[$entityClass];
 	}
 
-	public static function registerEntityManager($entityManager) {
-		if (!self::isEntityClassRegistered($entityManager->entityClass)) {
+	public static function registerEntityManager(EntityManager $entityManager) {
+		if (!self::isRegisteredEntityClass($entityManager->entityClass)) {
 			self::$entityClasses[$entityManager->entityClass]=$entityManager;
 		}
 	}

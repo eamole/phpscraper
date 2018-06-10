@@ -5,7 +5,8 @@
  * Date: 26/05/2018
  * Time: 02:23
  */
-//use App;
+
+use App\Scrapers;
 /**
  * @param $html
  * @return string|void
@@ -21,7 +22,7 @@ function scraper_cruise_list($html) {
     echo var_dump($_SERVER['DOCUMENT_ROOT']); //['DOCUMENT_ROOT'];
     echo Core\App::$root;
 
-    $cruiseScraper = new Scraper\CruiseCritic();
+    $cruiseScraper = new Scrapers\CruiseCritic();
     $cruises = $cruiseScraper->getUpcoming();
     // $cruises->save();
 //    App\CruiseScrape::dump($cruises);

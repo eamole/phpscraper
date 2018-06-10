@@ -13,7 +13,7 @@ use Core;
 class App extends Base
 {
 //	use _Base;
-
+	public static $init=false;
 	public static $app;
 	public static $name;
 	public static $appClassName;
@@ -29,19 +29,21 @@ class App extends Base
 
 	public static function init($appClassName, $name , $dbClassName = null)
 	{
-		self::$appClassName = $appClassName;
-		self::$name = $name;
+		if(!self::$init) {
+			self::$init=true;
+			self::$appClassName = $appClassName;
+			self::$name = $name;
 
-		self::$app = new $appClassName();
-		// suppress warning re static assignment TODO : change
-		@self::$app->http = new Core\Http;
-		self::$root = realpath(dirname(__FILE__) . '/../../');    // needs to be relative to this source code
-		self::$storage = self::$root . self::$storage;
-		// suppress errors if folder exists
-		@mkdir(self::$storage, 0777, true);
+			self::$app = new $appClassName();
+			// suppress warning re static assignment TODO : change
+			@self::$app->http = new Core\Http;
+			self::$root = realpath(dirname(__FILE__) . '/../../');    // needs to be relative to this source code
+			self::$storage = self::$root . self::$storage;
+			// suppress errors if folder exists
+			@mkdir(self::$storage, 0777, true);
 
-		if($dbClassName)	$dbClassName::init();
-
+			if ($dbClassName) $dbClassName::init();
+		}
 	}
 
 	public static function readFile($path)

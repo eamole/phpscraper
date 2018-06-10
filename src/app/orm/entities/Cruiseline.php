@@ -23,7 +23,7 @@ use Core;
 use ORM\Model;
 use ORM\Entity;
 
-class CruiseLine extends Entity{
+class Cruiseline extends Entity{
 
 	/*
 	 * can I provide em overrides here or somewhere in exec code?

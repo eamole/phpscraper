@@ -103,9 +103,9 @@ class Entity extends Core\Base
 	 * @param bool $dirty	: allow bypass, for example when creating in first place
 	 * @return Entity
 	 */
-	public function __set__(PropertyDef $prop, $value, bool $dirty=true) : Entity {
+	public function __set__(PropertyDef $prop, $value, bool $bypassDirty=true) : Entity {
 		$this->data[$prop->name] = $value;
-		$this->dirty = $this->dirty || $dirty;      // to allow setting dirty to false!!
+		$this->dirty = $this->dirty || $bypassDirty;      // to allow setting dirty to false!!
 		return $this;
 	}
 	/*
