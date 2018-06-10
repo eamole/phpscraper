@@ -6,10 +6,12 @@
  * Time: 01:58
  */
 
-namespace Model;
+namespace App\ORM\Models;
 
 use \Core;
-use Model;
+use App\ORM\Entities\Ship;
+use ORM\Model;
+use ORM\Entity;
 
 /*
  * what effect does working with FK's have on the system
@@ -18,7 +20,7 @@ use Model;
  *
  */
 
-class Ships extends Core\Model
+class Ships extends Model
 {
 
 
@@ -32,10 +34,10 @@ class Ships extends Core\Model
 	public function __construct()
 	{
 		// fields are the basic simple fields
-		parent::__construct('ships', 'ship', 'name,details,url');
+		parent::__construct(self::class,Ship::class , null , 'name,details,url');
 		// we now need to add foreign keys etc
 		// might consider 4 funcs - ManyToOne, OneToMany, OneToOne and ManyToMany
-		$this->fk(Model\Cruiselines::class);
+		$this->fk(Cruiselines::class);
 
 	}
 

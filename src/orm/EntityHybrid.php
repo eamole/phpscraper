@@ -6,10 +6,11 @@
  * Time: 01:02
  */
 
-namespace Core;
+namespace ORM;
 
+use Core;
 
-class EntityHybrid extends Base{
+class EntityHybrid extends Core\Base{
 //    use _Base;
 
     public static $entity;
@@ -77,6 +78,7 @@ class EntityHybrid extends Base{
 
 
     public function __construct($name) {
+		 parent::_construct();
         self::$entities[$name] = $this;
 //        $this->_fields = &self::$fields;
     }

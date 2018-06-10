@@ -17,29 +17,19 @@
  * I could use the EM to call a method!! ie a std Init method
  * Lets start with deduce Model class
  */
-namespace Entity;
-use Core;
-use Model;
+namespace App\ORM\Entities;
 
-class CruiseLine extends Core\Entity{
+use Core;
+use ORM\Model;
+use ORM\Entity;
+
+class CruiseLine extends Entity{
 
 	/*
 	 * can I provide em overrides here or somewhere in exec code?
 	 */
 //	public $name,$logo;	// to avoid warnings when accessing them - using data array now
 
-
-	/**
-	 * CruiseLine constructor.
-	 * @param $entityClass
-	 * @param $modelClass
-	 * @param array $props
-	 * @param array $args
-	 */
-	public function __construct(){
-		parent::__construct();
-
-	}
 
 
 }

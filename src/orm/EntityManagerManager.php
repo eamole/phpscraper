@@ -6,16 +6,16 @@
  * Time: 01:59
  */
 
-namespace Core;
+namespace ORM;
 /*
  * this tracks all EntityManagers, which track all entities
  *
  */
 
+use Core;
 
 
-
-class EntityManagerManager extends Base{
+class EntityManagerManager extends Core\Base{
 
 	public static $entityClasses=[];
 

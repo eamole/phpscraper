@@ -60,15 +60,16 @@ App\Db::init();
  *
  */
 
-
+use App\ORM\Models;
+use App\ORM\Entities;
 //\Entity\CruiseLine::init();
 //\Entity\Ship::init();
 
-$ships=\Model\Ships::$model;
-$cruiselines = \Model\CruiseLines::$model;
+$ships=App\ORM\Models\Ships::getModel();
+$cruiselines = Models\CruiseLines::getModel();
 
-$cruiseline = \Entity\CruiseLine::findUniqueBy("name","test4");
+$cruiseline = Entities\CruiseLine::findUniqueBy("name","test4");
 
-$ship=new Entity\Ship();
+$ship=new Entities\Ship();
 $ship->cruiseline =$cruiseline;
 $ship->save();

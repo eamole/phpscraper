@@ -6,10 +6,11 @@
  * Time: 01:02
  */
 
-namespace Core;
+namespace ORM;
 
 use Core;
-use Core\EntityManager as EM;
+use ORM\EntityManager as EM;
+use ORM\Platform\Php\PropertyDef;
 
 /*
  * this uses a very mixed model, talking direct to DV
@@ -34,11 +35,11 @@ use Core\EntityManager as EM;
  * this behaviour needs to be turned on/off - on save?
  */
 
-class Entity extends Base
+class Entity extends Core\Base
 {
 
 	public $em;		// entity manager
-	public $data;  // this is where the object data is stored in keyed array
+	public $data = [];  // this is where the object data is stored in keyed array
 	public $dirty = false; // only save if a value changed/set
 
 	public static function EM() {
@@ -52,7 +53,8 @@ class Entity extends Base
 	 * I've made them all optional and made guesses
 	 */
 	public function __construct($entityClass=null, $modelClass=null,  $props = [], $args = []) {
-//		$this->em = EM::registerEntityClass($entityClass, $modelClass,  $props, $args);
+		parent::__construct();
+		//		$this->em = EM::registerEntityClass($entityClass, $modelClass,  $props, $args);
 		$entityClass = $entityClass ?? static::class;	// hopefully this works
 		$this->em = EM::getEntityManager($entityClass,$modelClass);
 		// register this object/entity with its manager
@@ -66,13 +68,15 @@ class Entity extends Base
 
 	public function id($id = null)
 	{
-		$name = $this->em->idName;
+		$name = $this->em->idName();
 		if ($id) {
 			$this->$name = $id;
 		}
 		return $this->$name;
 	}
-
+	/*
+	 * ORM version??
+	 */
 	function isProperty($name) {
 		return $this->em->isProperty($name);
 	}
@@ -81,7 +85,7 @@ class Entity extends Base
 	 */
 	public function _set_($name, $value)
 	{
-		if ($this->isProperty($name)) {
+		if ($prop = $this->isProperty($name)) {
 			$this->data[$name] = $value;
 		} else {
 			self::error("SET Reference to an undefined property [$name] in Class : " . static::class);
@@ -89,7 +93,38 @@ class Entity extends Base
 		return $this;
 	}
 
+	/*
+	 * special function to work with PropertyDef - if proerty def exists, the field exists no check
+	 * also, PropertyDEf can't see data (its provate ) so a callback is required
+	 */
+	/**
+	 * @param PropertyDef $prop
+	 * @param mixed $value
+	 * @param bool $dirty	: allow bypass, for example when creating in first place
+	 * @return Entity
+	 */
+	public function __set__(PropertyDef $prop, $value, bool $dirty=true) : Entity {
+		$this->data[$prop->name] = $value;
+		$this->dirty = $this->dirty || $dirty;      // to allow setting dirty to false!!
+		return $this;
+	}
+	/*
+	 * ORM version - should override this class with ORM\Entity
+	 */
 	public function __set($name, $value)
+	{
+		if ($prop = $this->isProperty($name)) {
+			if ($prop->getValue($this) !== $value) {
+				$this->dirty = true;      // to allow setting dirty to false!!
+				$prop->setValue($this, $value);
+			}
+		} else {
+			self::error("SET Reference to an undefined property [$name] in Class : " . static::class );
+		}
+		return $this;
+	}
+
+/*	public function __set($name, $value)
 	{
 		if ($this->isProperty($name)) {
 			if ($this->$name !== $value) {
@@ -100,16 +135,36 @@ class Entity extends Base
 			self::error("SET Reference to an undefined property [$name] in Class : " . static::class );
 		}
 		return $this;
+	}*/
+	/*
+ 	* this is needed because data should be private. Not very secure if I can just call a public method though!!
+ 	*/
+	public function __get__(PropertyDef $prop) {
+		// could make use of defaults etc....
+		$data = (isset($this->data[$prop->name])) ? $this->data[$prop->name] : null;
+		return $data;
 	}
 
+	/*
+	 * ORM version : uses the PropertyDef
+	 */
 	public function __get($name)
 	{
-		if ($this->isProperty($name)) {
-			return $this->data[$name];
+		if ($prop = $this->isProperty($name)) {
+			return $prop->getValue($this);	// this seems very convoluted!!
 		} else {
 			self::error("GET Reference to an undefined property [$name] in Class : " . static::class);
 		}
 	}
+/*	public function __get($name)
+	{
+		if ($this->isProperty($name)) {
+			$data = (isset($this->data[$name])) ? $this->data[$name] : null;
+			return $data ;
+		} else {
+			self::error("GET Reference to an undefined property [$name] in Class : " . static::class);
+		}
+	}*/
 
 	public function __call($name, $args)
 	{

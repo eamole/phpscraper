@@ -6,12 +6,12 @@
  * Time: 02:07
  */
 
-namespace Entity;
+namespace App\ORM\Entity;
 
 use Core;
-use Entity;
+use ORM;
 
-class CruiseScrape extends Core\EntityHybrid
+class CruiseScrape extends ORM\EntityHybrid
 {
 	
 

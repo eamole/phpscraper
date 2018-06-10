@@ -34,9 +34,10 @@ class Http extends Base{
 
     public function __construct()
     {
-        /*
-         * for use with file_get_contents - otherwise 404
-         */
+    	parent::__construct();
+		 /*u
+		  * for use with file_get_contents - otherwise 404
+		  */
         $options = array(
             'http'=>array(
                 'method'=>"GET",

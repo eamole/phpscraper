@@ -6,12 +6,13 @@
  * Time: 01:03
  */
 
-namespace Entity;
+namespace App\ORM\Entities;
 
 use Core;
-use Model;
+use ORM\Model;
+use ORM\Entity;
 
-class Ship extends Core\Entity
+class Ship extends Entity
 {
 
 
@@ -22,12 +23,6 @@ class Ship extends Core\Entity
 //	public $logo;				// url
 //	public $details;			//
 
-
-	public function __construct()
-	{
-//		self::init();	// not required - parent::con will do
-		parent::__construct(self::class, Model\Ships::class);
-	}
 
 
 }

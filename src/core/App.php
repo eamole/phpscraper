@@ -33,10 +33,12 @@ class App extends Base
 		self::$name = $name;
 
 		self::$app = new $appClassName();
-		(self::$app)->http = new Core\Http;
+		// suppress warning re static assignment TODO : change
+		@self::$app->http = new Core\Http;
 		self::$root = realpath(dirname(__FILE__) . '/../../');    // needs to be relative to this source code
 		self::$storage = self::$root . self::$storage;
-		mkdir(self::$storage, 0777, true);
+		// suppress errors if folder exists
+		@mkdir(self::$storage, 0777, true);
 
 		if($dbClassName)	$dbClassName::init();
 

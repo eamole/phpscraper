@@ -6,11 +6,13 @@
  * Time: 15:37
  */
 
-namespace Model;
+namespace App\ORM\Models;
 use Core;
-use Entity;
+use ORM\Entity;
+use App\ORM\Entities;
+use ORM\Model;
 
-class CruiseLines extends Core\Model {
+class CruiseLines extends Model {
 
 	/**
 	 * CruiseLines constructor.
@@ -21,10 +23,10 @@ class CruiseLines extends Core\Model {
 	 */
 	public function __construct()
 	{
-		parent::__construct('cruiselines', Entity\CruiseLine::class,
+		parent::__construct( self::class , Entities\CruiseLine::class, null,
 				  "name,details,url,logo");
 		// vlinks should be set by ships
-		
+
 	}
 	
 	

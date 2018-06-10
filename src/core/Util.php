@@ -11,7 +11,8 @@ namespace Core;
 
 class Util extends Base
 {
-	public static $plurals = ["ies" => "y", "es" => "", "s" => "", "a" => "um"];
+	// "es" => "", - hits cruiselines - intended to catch boxes - use a bloody dict
+	public static $plurals = ["ies" => "y",  "s" => "", "a" => "um"];
 								// monkey(s) , funny(ies), datum(a) , box(es)
 	public static $singulars = [ 'ey' => 's' ,'y' => "ies" , 'um' => "a" , 'x' => 'xes' ];
 
@@ -30,7 +31,7 @@ class Util extends Base
 			// compare
 			if (substr($word, 0 - strlen($plural)) == $plural) {
 				// strip off ending
-				$ret = substr($word, 0, strlen($plural)) . $singular;
+				$ret = substr($word, 0, 0-strlen($plural)) . $singular;
 				break;
 			}
 		}
